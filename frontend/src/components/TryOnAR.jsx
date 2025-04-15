@@ -27,13 +27,14 @@ const TryOnAR = ({ clothingItems }) => {
         }
 
         if (!window.tmPose) {
-          const poseScript = document.createElement("script");
-          poseScript.src = "https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js";
-          poseScript.async = true;
-          document.body.appendChild(poseScript);
+          const tmPoseScript = document.createElement("script");
+          tmPoseScript.src =
+            "https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js";
+          tmPoseScript.async = true;
+          document.body.appendChild(tmPoseScript);
           await new Promise((res, rej) => {
-            poseScript.onload = res;
-            poseScript.onerror = rej;
+            tmPoseScript.onload = res;
+            tmPoseScript.onerror = rej;
           });
         }
 
@@ -120,12 +121,13 @@ const TryOnAR = ({ clothingItems }) => {
 
   const displayClothing = (pose) => {
     if (!pose || !clothingItems) return;
+
     const ctx = canvasRef.current.getContext("2d");
 
     clothingItems.forEach((item) => {
-      const position = getClothingPosition(pose, item.type);
-      if (position && item.image.complete) {
-        const { x, y, width, height } = position;
+      const clothingPosition = getClothingPosition(pose, item.type);
+      if (clothingPosition && item.image.complete) {
+        const { x, y, width, height } = clothingPosition;
         ctx.drawImage(item.image, x, y, width, height);
       }
     });
@@ -134,57 +136,55 @@ const TryOnAR = ({ clothingItems }) => {
   const getClothingPosition = (pose, clothingType) => {
     const keypoints = pose.keypoints;
     let x = 0,
-        y = 0,
-        width = 100,
-        height = 100;
+      y = 0,
+      width = 100,
+      height = 100;
 
     const getKey = (name) => keypoints.find((k) => k.part === name);
+
     const leftShoulder = getKey("leftShoulder");
     const rightShoulder = getKey("rightShoulder");
     const leftHip = getKey("leftHip");
     const rightHip = getKey("rightHip");
 
-    const center = (a, b) => ({
-      x: (a.position.x + b.position.x) / 2,
-      y: (a.position.y + b.position.y) / 2,
+    const center = (pointA, pointB) => ({
+      x: (pointA.position.x + pointB.position.x) / 2,
+      y: (pointA.position.y + pointB.position.y) / 2,
     });
 
     switch (clothingType) {
       case "top":
         if (leftShoulder && rightShoulder) {
-          const { x: cx, y: cy } = center(leftShoulder, rightShoulder);
-          const dist = Math.abs(leftShoulder.position.x - rightShoulder.position.x);
-          width = dist * 1.5;
+          const { x: centerX, y: centerY } = center(leftShoulder, rightShoulder);
+          const shoulderDist = Math.abs(leftShoulder.position.x - rightShoulder.position.x);
+          width = shoulderDist * 1.5;
           height = width * 1.2;
-          x = cx - width / 2;
-          y = cy - height / 2 + 50; // align just below shoulders
+          x = centerX - width / 2;
+          y = centerY - height / 2 + 50;
         }
         break;
 
       case "pants":
       case "skirt":
         if (leftHip && rightHip) {
-          const { x: cx, y: cy } = center(leftHip, rightHip);
-          const dist = Math.abs(leftHip.position.x - rightHip.position.x);
-          width = dist * 1.8;
-          height = dist * 1.2;
-          x = cx - width / 2;
-          y = cy;
+          const { x: centerX, y: centerY } = center(leftHip, rightHip);
+          const hipDist = Math.abs(leftHip.position.x - rightHip.position.x);
+          width = hipDist * 1.8;
+          height = hipDist * 1.2;
+          x = centerX - width / 2;
+          y = centerY;
         }
         break;
 
       case "dress":
         if (leftShoulder && rightShoulder && leftHip && rightHip) {
-          const topCenter = center(leftShoulder, rightShoulder);
-          const bottomCenter = center(leftHip, rightHip);
-          const shoulderWidth = Math.abs(leftShoulder.position.x - rightShoulder.position.x);
-          const verticalDist = Math.abs(topCenter.y - bottomCenter.y);
-
-          width = shoulderWidth * 1.8;
-          height = verticalDist * 2.5;
-
-          x = topCenter.x - width / 2;
-          y = topCenter.y + 30; // LOWERED the y-position to move dress slightly below shoulders
+          const { x: centerX, y: shoulderY } = center(leftShoulder, rightShoulder);
+          const { y: hipY } = center(leftHip, rightHip);
+          const shoulderDist = Math.abs(leftShoulder.position.x - rightShoulder.position.x);
+          width = shoulderDist * 1.5;
+          height = (hipY - shoulderY) * 1.4;
+          x = centerX - width / 2;
+          y = shoulderY;
         }
         break;
 
@@ -206,6 +206,7 @@ const TryOnAR = ({ clothingItems }) => {
       <h2 className="text-lg font-semibold mb-2">Virtual Try-On</h2>
 
       {error && <div className="text-red-600 bg-red-100 p-2 rounded mb-4">{error}</div>}
+
       {isLoading && <p className="text-gray-500">Loading AR experience...</p>}
 
       {!isARReady && !isLoading && (
@@ -219,8 +220,17 @@ const TryOnAR = ({ clothingItems }) => {
 
       {isARReady && (
         <>
-          <canvas ref={canvasRef} width="300" height="300" className="border mt-4" />
-          <div id="prediction-container" ref={labelContainerRef} className="mt-4"></div>
+          <canvas
+            ref={canvasRef}
+            width="300"
+            height="300"
+            className="border mt-4"
+          />
+          <div
+            id="prediction-container"
+            ref={labelContainerRef}
+            className="mt-4"
+          ></div>
         </>
       )}
     </div>
