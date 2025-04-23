@@ -10,7 +10,7 @@ const Add = ({ token }) => {
     name: '',
     description: '',
     price: '',
-    category: 'Men',
+    category: 'Women',
     subCategory: 'Topwear',
     bestseller: false,
     sizes: [],
@@ -148,8 +148,9 @@ const Add = ({ token }) => {
             className='w-full px-3 py-2'
           >
             <option value='Topwear'>Top</option>
-            <option value='Bottomwear'>Skirt/Dress</option>
-            <option value='Winterwear'>Pants</option>
+            <option value='Skirt'>Skirt</option>
+            <option value='Pants'>Pants</option>
+            <option value='Dress'>Dress</option>
           </select>
         </div>
 

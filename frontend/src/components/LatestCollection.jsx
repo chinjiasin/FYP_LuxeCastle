@@ -8,8 +8,8 @@ const LatestCollection = () => {
   const [latestProducts, setLatestProducts] = useState([]);
 
   useEffect(() => {
-    // Get the first 10 latest products
-    setLatestProducts(products.slice(0, 10));
+    // Get the first 5 latest products
+    setLatestProducts(products.slice(0, 5)); // Change to 5 products
   }, [products]);
 
   return (
@@ -18,7 +18,7 @@ const LatestCollection = () => {
         {/* Title Section */}
         <Title text1="New" text2="COLLECTIONS" />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
-        Fall in love all over again by love and elegance that make you feel as beautiful as the moment itself.
+          Fall in love all over again by love and elegance that make you feel as beautiful as the moment itself.
         </p>
       </div>
 

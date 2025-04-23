@@ -73,6 +73,11 @@ import contact_img from './contact_img.png'
 import razorpay_logo from './razorpay_logo.png'
 import stripe_logo from './stripe_logo.png'
 import cross_icon from './cross_icon.png'
+import HighTea from './HighTea.png';
+import disney from './disney.png';
+import sweetCool from './sweetCool.png';
+import comfy from './comfy.png';
+
 
 export const assets = {
     logo,
@@ -92,6 +97,10 @@ export const assets = {
     contact_img,
     razorpay_logo,
     stripe_logo,
+    HighTea,
+    disney,
+    sweetCool,
+    comfy,
     cross_icon
 }
 

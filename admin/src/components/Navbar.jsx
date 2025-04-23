@@ -2,9 +2,8 @@ import React from 'react';
 import { assets } from '../assets/assets';
 
 const Navbar = ({ setToken }) => {
-  const handleLogout = () => {
-    setToken('');
-  };
+  // Logout handler
+  const handleLogout = () => setToken('');
 
   return (
     <header className="flex items-center justify-between px-4 py-2">
@@ -14,19 +13,14 @@ const Navbar = ({ setToken }) => {
       </div>
 
       {/* Logout Button */}
-      <LogoutButton onClick={handleLogout} />
+      <button
+        onClick={handleLogout}
+        className="bg-gray-600 text-white px-5 py-2 sm:px-7 sm:py-2 rounded-full text-xs sm:text-sm"
+      >
+        Logout
+      </button>
     </header>
   );
 };
-
-// Reusable Logout Button Component
-const LogoutButton = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="bg-gray-600 text-white px-5 py-2 sm:px-7 sm:py-2 rounded-full text-xs sm:text-sm"
-  >
-    Logout
-  </button>
-);
 
 export default Navbar;

@@ -4,7 +4,6 @@ import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
 
-// Lazy load TryOnAR
 const TryOnAR = React.lazy(() => import('../components/TryOnAR.jsx'));
 
 const Product = () => {
@@ -16,6 +15,7 @@ const Product = () => {
   const [selectedSize, setSelectedSize] = useState('');
   const [showTryOn, setShowTryOn] = useState(false);
   const [clothingItems, setClothingItems] = useState([]);
+  const [showNotification, setShowNotification] = useState(false); // State to track notification visibility
 
   useEffect(() => {
     const fetchProductData = () => {
@@ -24,12 +24,11 @@ const Product = () => {
         setProductData(product);
         setSelectedImage(product.image?.[0] || '');
 
-        // Load AR clothing image
         const img = new Image();
         img.src = product.image?.[0];
         setClothingItems([
           {
-            type: product.type || 'top', // fallback to 'top' if undefined
+            type: product.type || 'top',
             image: img
           }
         ]);
@@ -38,10 +37,27 @@ const Product = () => {
     fetchProductData();
   }, [productId, products]);
 
+  const handleAddToCart = () => {
+    if (selectedSize) {
+      addToCart(productData._id, selectedSize); // Only add to cart if a size is selected
+      setShowNotification(true); // Show the notification when item is added
+      setTimeout(() => setShowNotification(false), 3000); // Hide it after 3 seconds
+    } else {
+      alert("Please select a size before adding to cart!"); // Optionally, show an alert if no size is selected
+    }
+  };
+
   if (!productData) return <div className="opacity-0"></div>;
 
   return (
     <div className="border-t-2 pt-10 transition-opacity duration-500 opacity-100">
+      {/* Notification */}
+      {showNotification && (
+        <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-md">
+          <p>Your item has been added to the cart!</p>
+        </div>
+      )}
+
       {/* Product Section */}
       <div className="flex flex-col sm:flex-row gap-12">
         {/* Image Gallery */}
@@ -99,7 +115,7 @@ const Product = () => {
 
           {/* Action Buttons */}
           <button
-            onClick={() => addToCart(productData._id, selectedSize)}
+            onClick={handleAddToCart} // Call the function when clicked
             className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700"
           >
             ADD TO CART
@@ -129,21 +145,76 @@ const Product = () => {
         </div>
       </div>
 
-      {/* Description & Reviews */}
+      {/* Description & Size Chart */}
       <div className="mt-20">
         <div className="flex">
           <b className="border px-5 py-3 text-sm">Description</b>
-          <p className="border px-5 py-3 text-sm">Reviews (122)</p>
+          <p className="border px-5 py-3 text-sm text-gray-500">Reviews (122)</p>
         </div>
-        <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500">
+
+        <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-600">
+          <p>SIZE CHART:</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border text-gray-600">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="px-4 py-2 border">Size</th>
+                  <th className="px-4 py-2 border">Chest</th>
+                  <th className="px-4 py-2 border">Width</th>
+                  <th className="px-4 py-2 border">Length</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="bg-gray-50">
+                  <td className="px-4 py-2 border">S</td>
+                  <td className="px-4 py-2 border">34"</td>
+                  <td className="px-4 py-2 border">32"</td>
+                  <td className="px-4 py-2 border">20"</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 border">M</td>
+                  <td className="px-4 py-2 border">36"</td>
+                  <td className="px-4 py-2 border">34"</td>
+                  <td className="px-4 py-2 border">20.5"</td>
+                </tr>
+                <tr className="bg-gray-50">
+                  <td className="px-4 py-2 border">L</td>
+                  <td className="px-4 py-2 border">38"</td>
+                  <td className="px-4 py-2 border">36"</td>
+                  <td className="px-4 py-2 border">20.5"</td>
+                </tr>
+                <tr className="bg-gray-50">
+                  <td className="px-4 py-2 border">XL</td>
+                  <td className="px-4 py-2 border">40"</td>
+                  <td className="px-4 py-2 border">38"</td>
+                  <td className="px-4 py-2 border">22.5"</td>
+                </tr>
+                <tr className="bg-gray-50">
+                  <td className="px-4 py-2 border">XXL</td>
+                  <td className="px-4 py-2 border">42"</td>
+                  <td className="px-4 py-2 border">40"</td>
+                  <td className="px-4 py-2 border">24.5"</td>
+                </tr>
+              </tbody>
+            </table>
+            <p className="text-xs text-gray-400 mt-2">* All measurements are in inches.</p>
+          </div>
+
           <p>
-            An e-commerce website is an online platform that facilitates the buying and selling of products or
-            services over the internet. It serves as a virtual marketplace where businesses and individuals can
-            showcase their products, interact with customers, and conduct transactions without the need for a physical presence.
-          </p>
-          <p>
-            E-commerce websites typically display products or services along with detailed descriptions, images,
-            prices, and any available variations (e.g., sizes, colors).
+            CARING INSTRUCTIONS
+            <br />
+            Wash Instructions
+            ◦ Turn your piece inside out before washing garment.
+            ◦ Recommend to put garment in a mesh bag for machine wash.
+            ◦ Hand wash or machine wash with a gentle cycle in cold water.
+            ◦ Avoid bleach-based products / stain removers and aggressive detergents.
+            ◦ If hand wash, gently squeeze out the excess water – do not wring.
+            ◦ Lay flat to dry, iron on low if needed with garment inside out.
+            <br />
+            Care Disclaimers
+            ◦ Garment color may fade over time.
+            ◦ Snag issue might happen from harsh abrasion.
+            ◦ High heat will cause shrinkage of garment.
           </p>
         </div>
       </div>
