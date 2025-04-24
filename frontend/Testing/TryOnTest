@@ -1,0 +1,34 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import TryOnAR from '../components/TryOnAR'; // adjust this path to the correct location
+import { BrowserRouter } from 'react-router-dom';
+
+// Mock useNavigate to prevent actual navigation during test
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
+
+describe('TryOnAR Component', () => {
+  const clothingItemsMock = []; // You can populate with mock data if needed
+
+  it('renders without crashing', () => {
+    render(
+      <BrowserRouter>
+        <TryOnAR clothingItems={clothingItemsMock} />
+      </BrowserRouter>
+    );
+    const canvasElement = screen.getByRole('img', { hidden: true }); // Canvas acts like image visually
+    expect(canvasElement).toBeInTheDocument();
+  });
+
+  it('displays loading text initially', () => {
+    render(
+      <BrowserRouter>
+        <TryOnAR clothingItems={clothingItemsMock} />
+      </BrowserRouter>
+    );
+    const loadingText = screen.getByText(/loading ar/i);
+    expect(loadingText).toBeInTheDocument();
+  });
+});
